@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITI Infrastructure MIS Dashboard</title>
+    <style>
+        :root { 
+            --primary: #0e5774; 
+            --accent: #167ba3; 
+            --bg: #f4f7f9; 
+            --card: #ffffff; 
+            --text: #0a3d52; 
+            --muted: #5c7c8a; 
+            --border: #b0c4cc; 
+        }
+        
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: "Times New Roman", Times, serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 15px; 
+        }
+        
+        .container { 
+            width: 100%; 
+            max-width: 950px; 
+            margin: auto; 
+            background: var(--card); 
+            border-radius: 8px; 
+            padding: 25px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            border: 1px solid var(--border);
+        }
+        
+        .head-title { 
+            border-bottom: 3px solid var(--primary); 
+            padding-bottom: 10px; 
+            margin-bottom: 20px; 
+            text-align: center;
+        }
+        
+        h2 { margin: 0; color: var(--primary); font-size: 1.8rem; text-transform: uppercase; }
+
+        /* Summary Dashboard */
+        .summary-dash {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .summary-card {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .summary-card label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+        .summary-card b { font-size: 1.6rem; }
+
+        /* Quick Links */
+        .quick-links { margin-bottom: 20px; border-top: 1px solid var(--border); padding-top: 15px; }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .quick-btn { 
+            padding: 6px 14px; 
+            background: white; 
+            border: 1px solid var(--primary); 
+            color: var(--primary); 
+            border-radius: 4px; 
+            font-size: 0.9rem; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+        .quick-btn:hover { background: var(--primary); color: white; }
+
+        /* Controls */
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        select, input { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid var(--primary); 
+            border-radius: 4px; 
+            font-size: 15px; 
+            font-family: inherit;
+            color: var(--text);
+        }
+
+        .ribbon { 
+            display: none; 
+            background: var(--accent); 
+            color: white; 
+            padding: 10px; 
+            border-radius: 4px; 
+            margin-bottom: 15px; 
+            text-align: center; 
+            font-weight: bold; 
+        }
+
+        /* Table Layout */
+        .table-wrap { border: 1px solid var(--primary); border-radius: 4px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; font-size: 15px; }
+        th { background: var(--primary); color: white; padding: 12px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid var(--border); }
+        tr:nth-child(even) { background: #e8f1f4; }
+        
+        .iti-name { font-weight: bold; color: var(--primary); }
+        .val { font-weight: bold; text-align: center; color: var(--primary); }
+
+        .placeholder { text-align: center; padding: 40px; color: var(--muted); font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="head-title"><h2>Infrastructure MIS Dashboard</h2></div>
+
+    <div class="summary-dash">
+        <div class="summary-card">
+            <label>Total ITIs</label>
+            <b id="dashITI">105</b>
+        </div>
+        <div class="summary-card">
+            <label>Smart Classrooms</label>
+            <b id="dashSmart">337</b>
+        </div>
+        <div class="summary-card">
+            <label>Total Computers</label>
+            <b id="dashComp">3650</b>
+        </div>
+    </div>
+
+    <div class="quick-links">
+        <label style="font-weight: bold; color: var(--primary);">Priority Districts (Top 5 Req.):</label>
+        <div class="btn-group">
+            <button class="quick-btn" onclick="quickSelect('THIRUVANANTHAPURAM')">Thiruvananthapuram</button>
+            <button class="quick-btn" onclick="quickSelect('KOZHIKODE')">Kozhikode</button>
+            <button class="quick-btn" onclick="quickSelect('KANNUR')">Kannur</button>
+            <button class="quick-btn" onclick="quickSelect('PALAKKAD')">Palakkad</button>
+            <button class="quick-btn" onclick="quickSelect('KOLLAM')">Kollam</button>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div>
+            <label style="font-size: 0.8rem; font-weight: bold;">SELECT DISTRICT</label>
+            <select id="distDD"><option value="">-- Choose --</option></select>
+        </div>
+        <div>
+            <label style="font-size: 0.8rem; font-weight: bold;">SEARCH ITI</label>
+            <input type="text" id="subSearch" placeholder="Filter current list..." disabled>
+        </div>
+    </div>
+
+    <div id="ribbon" class="ribbon"></div>
+
+    <div id="results">
+        <div class="placeholder">Select a district or use a quick link to view detailed data.</div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+<script>
+    const URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDIjjyfLI3OsCZtyutLe1ipOv4XHYJo7zjQgEQlfKRwf14uXMJ71iBnnWf1fLBtxWQxaKVU3-Lb_0R/pub?output=csv';
+    let data = [];
+
+    Papa.parse(URL, {
+        download: true, header: true, skipEmptyLines: true,
+        complete: function(res) {
+            data = res.data.filter(r => r.District);
+            const dists = [...new Set(data.map(r => r.District))].sort();
+            const ddl = document.getElementById('distDD');
+            dists.forEach(d => { if(d) ddl.add(new Option(d, d)); });
+        }
+    });
+
+    function quickSelect(dist) {
+        document.getElementById('distDD').value = dist;
+        render();
+    }
+
+    function render() {
+        const val = document.getElementById('distDD').value;
+        const subQ = document.getElementById('subSearch').value.toLowerCase();
+        const res = document.getElementById('results');
+        const rib = document.getElementById('ribbon');
+        const searchInput = document.getElementById('subSearch');
+
+        if (!val) {
+            res.innerHTML = '<div class="placeholder">Select a district or use a quick link to view detailed data.</div>';
+            rib.style.display = 'none';
+            searchInput.disabled = true;
+            return;
+        }
+
+        searchInput.disabled = false;
+        const filtered = data.filter(i => i.District === val && i['Name of ITI'].toLowerCase().includes(subQ));
+        
+        let sTotal = 0, cTotal = 0;
+        rib.style.display = 'block';
+
+        if (filtered.length === 0) {
+            res.innerHTML = '<div class="placeholder">No matches found in this district.</div>';
+            rib.innerHTML = `District: ${val} | 0 Results`;
+            return;
+        }
+
+        res.innerHTML = `
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:50px">Sl.</th>
+                            <th>Name of ITI</th>
+                            <th style="text-align:center;">Smart</th>
+                            <th style="text-align:center;">Computers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map((i, idx) => {
+                            const s = parseInt(i['Smart Classrooms Required']) || 0;
+                            const c = parseInt(i['Computers Required']) || 0;
+                            sTotal += s; cTotal += c;
+                            return `
+                            <tr>
+                                <td>${idx + 1}</td>
+                                <td class="iti-name">${i['Name of ITI']}</td>
+                                <td class="val">${s || '-'}</td>
+                                <td class="val">${c || '-'}</td>
+                            </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+        
+        rib.innerHTML = `${val} District Summary | Smart: ${sTotal} | Computers: ${cTotal}`;
+    }
+
+    document.getElementById('distDD').addEventListener('change', render);
+    document.getElementById('subSearch').addEventListener('input', render);
+</script>
+</body>
+</html>
